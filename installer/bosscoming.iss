@@ -24,7 +24,7 @@ jp.LaunchProgram=インストール完了後に、BossComing2 を起動します。
 [Setup]AppName={cm:AppName}
 AppVersion={#MyAppVer}AppVerName={cm:AppName} ver.{#MyAppVer}
 DefaultGroupName={cm:AppName}
-OutputBaseFilename=atcs{#MyAppVerNum}
+OutputBaseFilename=bscm{#MyAppVerNum}
 DefaultDirName={pf}\BossComing
 UsePreviousAppDir=yes
 AppendDefaultDirName=yes 
