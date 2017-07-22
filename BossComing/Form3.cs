@@ -1,6 +1,6 @@
 ﻿//---------------------------------------------------------------------- 
-// "BossComing2" -- File encryption software.
-// Copyright (C) 2016  Mitsuhiro Hibara
+// "BossComing2"
+// Copyright (C) 2017  Mitsuhiro Hibara
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,9 +34,71 @@ namespace BossComing
       checkBoxAlt.Checked = AppSettings.Instance.KeyModAlt;
       checkBoxShift.Checked = AppSettings.Instance.KeyModShift;
 
-      for (int i = 0; i < listBoxKeyString.Items.Count; i++)
+      checkBoxMouseLeft.Checked = AppSettings.Instance.MouseModLeft;
+      checkBoxMouseMiddle.Checked = AppSettings.Instance.MouseModMiddle;
+      checkBoxMouseRight.Checked = AppSettings.Instance.MouseModRight;
+
+      string[] itemsArray = new string[]
       {
-        if ( (string)listBoxKeyString.Items[i] == AppSettings.Instance.KeyString)
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11",
+        "F12",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "0",
+        "MiddleClick",
+        "RightClick",
+        "WheelUp",
+        "WheelDown",
+        "LeftDoubleClick",
+        "RightDoubleClick"
+      };
+
+      for (int i = 0; i < itemsArray.Length; i++)
+      {
+        if (itemsArray[i] == AppSettings.Instance.KeyString)
         {
           listBoxKeyString.SelectedIndex = i;
           break;
@@ -47,6 +109,7 @@ namespace BossComing
 
       checkBoxSpecifyImageFile.Checked = AppSettings.Instance.fGazoFile;
       textBoxSpecifyImageFile.Text = AppSettings.Instance.GazoFilePath;
+      checkBoxMuteSystemSound.Checked = AppSettings.Instance.fMuteSystemSound;
       checkBoxInTaskbar.Checked = AppSettings.Instance.fInTaskBar;
 
       buttonApply.Enabled = false;
@@ -55,7 +118,7 @@ namespace BossComing
 
     private void Form3_FormClosed(object sender, FormClosedEventArgs e)
     {
-
+      // stab
     }
 
     private void buttonOK_Click(object sender, EventArgs e)
@@ -73,6 +136,11 @@ namespace BossComing
       AppSettings.Instance.KeyModCtrl = checkBoxCtrl.Checked;
       AppSettings.Instance.KeyModAlt = checkBoxAlt.Checked;
       AppSettings.Instance.KeyModShift = checkBoxShift.Checked;
+
+      AppSettings.Instance.MouseModLeft = checkBoxMouseLeft.Checked;
+      AppSettings.Instance.MouseModMiddle = checkBoxMouseMiddle.Checked;
+      AppSettings.Instance.MouseModRight = checkBoxMouseRight.Checked;
+
       AppSettings.Instance.KeyString = listBoxKeyString.SelectedItem.ToString();
 
       // Fade In speed
@@ -82,8 +150,16 @@ namespace BossComing
       AppSettings.Instance.fGazoFile = checkBoxSpecifyImageFile.Checked;
       AppSettings.Instance.GazoFilePath = textBoxSpecifyImageFile.Text;
 
+      // Mute system sound
+      AppSettings.Instance.fMuteSystemSound = checkBoxMuteSystemSound.Checked;
+
       // In task bar
       AppSettings.Instance.fInTaskBar = checkBoxInTaskbar.Checked;
+
+      // Save options
+      AppSettings.Instance.SaveOptions();
+
+      buttonApply.Enabled = false;
 
     }
 
@@ -94,7 +170,6 @@ namespace BossComing
 
     private void ChangedValue(object sender, EventArgs e)
     {
-      labelFadeInSpeed.Text = trackBar1.Value.ToString() + "ms";
       buttonApply.Enabled = true;
     }
 
@@ -122,5 +197,12 @@ namespace BossComing
         textBoxSpecifyImageFile.Text = openFileDialog1.FileName;
       }
     }
+
+    private void trackBar1_ValueChanged(object sender, EventArgs e)
+    {
+      labelFadeInSpeed.Text = trackBar1.Value.ToString() + "ms";
+      buttonApply.Enabled = true;
+    }
+
   }
 }

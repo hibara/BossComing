@@ -48,7 +48,6 @@
       // 
       // timer1
       // 
-      this.timer1.Interval = 1;
       this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
       // 
       // pictureBox1
@@ -59,6 +58,7 @@
       this.pictureBox1.TabIndex = 1;
       this.pictureBox1.TabStop = false;
       this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+      this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
       // 
       // Form4
       // 
@@ -71,6 +71,7 @@
       this.MaximizeBox = false;
       this.MinimizeBox = false;
       this.Name = "Form4";
+      this.Opacity = 0D;
       this.Text = "Form4";
       this.Load += new System.EventHandler(this.Form4_Load);
       this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form4_MouseClick);

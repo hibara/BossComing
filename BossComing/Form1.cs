@@ -1,6 +1,6 @@
 ﻿//---------------------------------------------------------------------- 
-// "BossComing2" -- File encryption software.
-// Copyright (C) 2016  Mitsuhiro Hibara
+// "BossComing2"
+// Copyright (C) 2017  Mitsuhiro Hibara
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,21 +20,54 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using System.Collections;
+using Gma.System.MouseKeyHook;
+using Gma.System.MouseKeyHook.Implementation;
+using System.Runtime.InteropServices;
+
 
 namespace BossComing
 {
   public partial class Form1 : Form
   {
-
+    private IKeyboardMouseEvents m_Events;
     public DateTime NowDateTime;
+
+    private bool fKeyModAlt = false;
+    private bool fKeyModCtrl = false;
+    private bool fKeyModShift = false;
+
+    public static bool fMouseModLeft = false;
+    public static bool fMouseModMiddle = false;
+    public static bool fMouseModRight = false;
+
+    // https://stackoverflow.com/questions/13139181/how-to-programmatically-set-the-system-volume
+    private const int APPCOMMAND_VOLUME_MUTE = 0x80000;
+    private const int APPCOMMAND_VOLUME_UP = 0xA0000;
+    private const int APPCOMMAND_VOLUME_DOWN = 0x90000;
+    private const int WM_APPCOMMAND = 0x319;
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+    private void Mute()
+    {
+      SendMessageW(this.Handle, WM_APPCOMMAND, this.Handle, (IntPtr)APPCOMMAND_VOLUME_MUTE);
+    }
+    private void VolDown()
+    {
+      SendMessageW(this.Handle, WM_APPCOMMAND, this.Handle, (IntPtr)APPCOMMAND_VOLUME_DOWN);
+    }
+    private void VolUp()
+    {
+      SendMessageW(this.Handle, WM_APPCOMMAND, this.Handle, (IntPtr)APPCOMMAND_VOLUME_UP);
+    }
 
     public Form1()
     {
       InitializeComponent();
+      SubscribeGlobal();
 
       // Load Options
       AppSettings.Instance.ReadOptions();
-
     }
 
     private void Form1_Load(object sender, EventArgs e)
@@ -65,7 +98,7 @@ namespace BossComing
 
       pictureBox1.Dock = DockStyle.Fill;
 
-      
+
       //-----------------------------------
 
       // http://stackoverflow.com/questions/15847637/take-screenshot-of-multiple-desktops-of-all-visible-applications-and-forms
@@ -78,7 +111,7 @@ namespace BossComing
 
       // Create a bitmap of the appropriate size to receive the screenshot.
       AppSettings.Instance.BitmapMainGazo = new Bitmap(screenWidth, screenHeight);
-        
+
       // Draw the screenshot into our bitmap.
       using (Graphics g = Graphics.FromImage(AppSettings.Instance.BitmapMainGazo))
       {
@@ -92,52 +125,537 @@ namespace BossComing
 
       pictureBox1.Image = AppSettings.Instance.BitmapMainGazo;
 
+      DisplayCurrentShortCut();
+
       NowDateTime = DateTime.Now;
       toolStripStatusLabelCaptureDateTime.Text = "Capture: " + NowDateTime.ToString();
 
-      //----------------------------------------------------------------------
-      // Hot key
-      AppSettings.Instance.HK = new Hotkey();
+    }
 
-      ArrayList KeyList = new ArrayList();
-
-      Keys key;
-      Enum.TryParse(AppSettings.Instance.KeyString, out key);
-      AppSettings.Instance.HK.KeyCode = key;
-
-      //AppSettings.Instance.HK.Windows = true;
-      if (AppSettings.Instance.KeyModCtrl == true)
-      {
-        AppSettings.Instance.HK.Control = true;
-        KeyList.Add("Ctrl");
-      }
+    private void DisplayCurrentShortCut()
+    {
+      string ShortCutString = "";
       if (AppSettings.Instance.KeyModAlt == true)
       {
-        AppSettings.Instance.HK.Alt = true;
-        KeyList.Add("Alt");
+        ShortCutString = "Alt + ";
+      }
+      if (AppSettings.Instance.KeyModCtrl == true)
+      {
+        ShortCutString = ShortCutString + "Ctrl + ";
       }
       if (AppSettings.Instance.KeyModShift == true)
       {
-        AppSettings.Instance.HK.Shift = true;
-        KeyList.Add("Shift");
+        ShortCutString = ShortCutString + "Shift + ";
+      }
+      if (AppSettings.Instance.MouseModLeft == true)
+      {
+        ShortCutString = ShortCutString + Properties.Resources.MouseModLeft + " + ";
+      }
+      if (AppSettings.Instance.MouseModMiddle == true)
+      {
+        ShortCutString = ShortCutString + Properties.Resources.MouseModMiddle + " + ";
+      }
+      if (AppSettings.Instance.MouseModRight == true)
+      {
+        ShortCutString = ShortCutString + Properties.Resources.MouseModRight + " + ";
       }
 
-      KeyList.Add(AppSettings.Instance.KeyString);
-      toolStripStatusLabelKeyString.Text = String.Join(" + ", KeyList.ToArray());
-
-      AppSettings.Instance.HK.Pressed += delegate { ReplaceShowScreen(); };
-
-      if (!AppSettings.Instance.HK.GetCanRegister(this))
+      switch (AppSettings.Instance.KeyString)
       {
-        MessageBox.Show("Whoops, looks like attempts to register will fail or throw an exception, show error to user");
+        case "LeftClick":
+          ShortCutString = ShortCutString + Properties.Resources.LeftClick;
+          break;
+        case "MiddleClick":
+          ShortCutString = ShortCutString + Properties.Resources.MiddleClick;
+          break;
+        case "RightClick":
+          ShortCutString = ShortCutString + Properties.Resources.RightClick;
+          break;
+        case "WheelUp":
+          ShortCutString = ShortCutString + Properties.Resources.WheelUp;
+          break;
+        case "WheelDown":
+          ShortCutString = ShortCutString + Properties.Resources.WheelDown;
+          break;
+        case "LeftDoubleClick":
+          ShortCutString = ShortCutString + Properties.Resources.LeftDoubleClick;
+          break;
+        case "RightDoubleClick":
+          ShortCutString = ShortCutString + Properties.Resources.RightDoubleClick;
+          break;
+        default:
+          ShortCutString = ShortCutString + AppSettings.Instance.KeyString;
+          break;
+      }
+
+      toolStripStatusLabelKeyString.Text = ShortCutString;
+
+    }
+
+    private void SubscribeApplication()
+    {
+      Unsubscribe();
+      Subscribe(Hook.AppEvents());
+    }
+
+    private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      Unsubscribe();
+    }
+
+    private void SubscribeGlobal()
+    {
+      Unsubscribe();
+      Subscribe(Hook.GlobalEvents());
+    }
+
+    private void Subscribe(IKeyboardMouseEvents events)
+    {
+      m_Events = events;
+      m_Events.KeyDown += OnKeyDown;
+      m_Events.KeyUp += OnKeyUp;
+      m_Events.KeyPress += HookManager_KeyPress;
+
+      m_Events.MouseUp += OnMouseUp;
+      m_Events.MouseClick += OnMouseClick;
+      m_Events.MouseDoubleClick += OnMouseDoubleClick;
+
+      m_Events.MouseMove += HookManager_MouseMove;
+
+      m_Events.MouseDragStarted += OnMouseDragStarted;
+      m_Events.MouseDragFinished += OnMouseDragFinished;
+
+      m_Events.MouseWheel += HookManager_MouseWheel;
+
+      m_Events.MouseDown += OnMouseDown;
+    }
+
+    private void Unsubscribe()
+    {
+      if (m_Events == null) return;
+      m_Events.KeyDown -= OnKeyDown;
+      m_Events.KeyUp -= OnKeyUp;
+      m_Events.KeyPress -= HookManager_KeyPress;
+
+      m_Events.MouseUp -= OnMouseUp;
+      m_Events.MouseClick -= OnMouseClick;
+      m_Events.MouseDoubleClick -= OnMouseDoubleClick;
+
+      m_Events.MouseMove -= HookManager_MouseMove;
+
+      m_Events.MouseDragStarted -= OnMouseDragStarted;
+      m_Events.MouseDragFinished -= OnMouseDragFinished;
+
+      m_Events.MouseWheel -= HookManager_MouseWheel;
+
+      m_Events.MouseDown -= OnMouseDown;
+
+      m_Events.Dispose();
+      m_Events = null;
+    }
+
+
+    // https://msdn.microsoft.com/ja-jp/library/system.windows.forms.keys(v=vs.110).aspx
+
+
+    private void OnKeyDown(object sender, KeyEventArgs e)
+    {
+      //Log(string.Format("KeyDown  \t\t {0}\n", e.KeyCode));
+
+      if (e.KeyCode == Keys.LMenu || e.KeyCode == Keys.RMenu) // Altキー
+      {
+        fKeyModAlt = true;
+      }
+      else if (e.KeyCode == Keys.LControlKey || e.KeyCode == Keys.RControlKey)
+      {
+        fKeyModCtrl = true;
+      }
+      else if (e.KeyCode == Keys.LShiftKey || e.KeyCode == Keys.RShiftKey)
+      {
+        fKeyModShift = true;
+      }
+
+      if (CheckUserControlKey() == false) return;
+
+      if ( CheckUserSpecifiedKey(e) == true)
+      {
+        ReplaceShowScreen();
+      }
+
+    }
+
+    private void OnKeyUp(object sender, KeyEventArgs e)
+    {
+      //Log(string.Format("KeyUp  \t\t {0}\n", e.KeyCode));
+      if (e.KeyCode == Keys.LMenu || e.KeyCode == Keys.RMenu)
+      {
+        fKeyModAlt = false;
+      }
+      else if (e.KeyCode == Keys.LControlKey || e.KeyCode == Keys.RControlKey)
+      {
+        fKeyModCtrl = false;
+      }
+      else if (e.KeyCode == Keys.LShiftKey || e.KeyCode == Keys.RShiftKey)
+      {
+        fKeyModShift = false;
+      }
+    }
+
+    private void HookManager_KeyPress(object sender, KeyPressEventArgs e)
+    {
+      //Log(string.Format("KeyPress \t\t {0}\n", e.KeyChar));
+    }
+
+    private void HookManager_MouseMove(object sender, MouseEventArgs e)
+    {
+      //labelMousePosition.Text = string.Format("x={0:0000}; y={1:0000}", e.X, e.Y);
+    }
+
+    private void OnMouseDown(object sender, MouseEventArgs e)
+    {
+      //Log(string.Format("MouseDown \t\t {0}\n", e.Button));
+
+      if (e.Button == MouseButtons.Left)
+      {
+        fMouseModLeft = true;
+      }
+      else if (e.Button == MouseButtons.Middle)
+      {
+        fMouseModMiddle = true;
+      }
+      else if (e.Button == MouseButtons.Right)
+      {
+        fMouseModRight = true;
+      }
+
+      if (CheckUserControlKey() == false) return;
+
+      switch (AppSettings.Instance.KeyString)
+      {
+        case "MiddleClick":
+          if (e.Button == MouseButtons.Middle)
+          {
+            ReplaceShowScreen();
+            return;
+          }
+          break;
+
+        case "RightClick":
+          if (e.Button == MouseButtons.Right)
+          {
+            ReplaceShowScreen();
+            return;
+          }
+          break;
+      }
+      
+    }
+
+    private void OnMouseUp(object sender, MouseEventArgs e)
+    {
+      //Log(string.Format("MouseUp \t\t {0}\n", e.Button));
+
+      if (e.Button == MouseButtons.Left)
+      {
+        fMouseModLeft = false;
+      }
+      else if (e.Button == MouseButtons.Middle)
+      {
+        fMouseModMiddle = false;
+      }
+      else if (e.Button == MouseButtons.Right)
+      {
+        fMouseModRight = false;
+      }
+    }
+
+    private void OnMouseClick(object sender, MouseEventArgs e)
+    {
+      //Log(string.Format("MouseClick \t\t {0}\n", e.Button));
+    }
+
+    private void OnMouseDoubleClick(object sender, MouseEventArgs e)
+    {
+      //Log(string.Format("MouseDoubleClick \t\t {0}\n", e.Button));
+
+      if (CheckUserControlKey() == false) return;
+
+      switch (AppSettings.Instance.KeyString)
+      {
+        case "LeftDoubleClick":
+          if (e.Button == MouseButtons.Left)
+          {
+            ReplaceShowScreen();
+            return;
+          }
+          break;
+
+        case "RightDoubleClick":
+          if (e.Button == MouseButtons.Right)
+          {
+            ReplaceShowScreen();
+            return;
+          }
+          break;
+      }
+      
+    }
+
+    private void OnMouseDragStarted(object sender, MouseEventArgs e)
+    {
+      //Log("MouseDragStarted\n");
+    }
+
+    private void OnMouseDragFinished(object sender, MouseEventArgs e)
+    {
+      //Log("MouseDragFinished\n");
+    }
+
+    private void HookManager_MouseWheel(object sender, MouseEventArgs e)
+    {
+      //labelWheel.Text = string.Format("Wheel={0:000}", e.Delta);
+      if (e.Delta > 0)
+      {
+        if(AppSettings.Instance.KeyString == "WheelUp")
+        {
+          if (CheckUserControlKey() == true)
+          {
+            ReplaceShowScreen();
+          }
+        }
       }
       else
       {
-        AppSettings.Instance.HK.Register(this);
+        if (AppSettings.Instance.KeyString == "WheelDown")
+        {
+          if (CheckUserControlKey() == true)
+          {
+            ReplaceShowScreen();
+          }
+        }
+      }
+    }
+
+    private void HookManager_MouseWheelExt(object sender, MouseEventExtArgs e)
+    {
+      //labelWheel.Text = string.Format("Wheel={0:000}", e.Delta);
+      //Log("Mouse Wheel Move Suppressed.\n");
+      //e.Handled = true;
+    }
+
+    //----------------------------------------------------------------------
+    // Check control key
+    //----------------------------------------------------------------------
+    private bool CheckUserControlKey()
+    {
+      if (AppSettings.Instance.KeyModAlt == true)
+      {
+        if (fKeyModCtrl == false)
+        {
+          return (false);
+        }
       }
 
+      if (AppSettings.Instance.KeyModCtrl == true)
+      {
+        if (fKeyModCtrl == false)
+        {
+          return (false);
+        }
+      }
+
+      if (AppSettings.Instance.KeyModShift == true)
+      {
+        if (fKeyModShift == false)
+        {
+          return (false);
+        }
+      }
+
+      if (AppSettings.Instance.MouseModLeft == true)
+      {
+        if (fMouseModLeft == false)
+        {
+          return (false);
+        }
+      }
+
+      if (AppSettings.Instance.MouseModMiddle == true)
+      {
+        if (fMouseModMiddle == false)
+        {
+          return (false);
+        }
+      }
+
+      if (AppSettings.Instance.MouseModRight == true)
+      {
+        if (fMouseModRight == false)
+        {
+          return (false);
+        }
+      }
+
+      return (true);
 
     }
+
+    //----------------------------------------------------------------------
+    // User specified key check
+    //----------------------------------------------------------------------
+    private bool CheckUserSpecifiedKey(KeyEventArgs e)
+    {
+      switch (AppSettings.Instance.KeyString)
+      {
+        case "F1":
+          if (e.KeyCode == Keys.F1) return (true);
+          break;
+        case "F2":
+          if (e.KeyCode == Keys.F2) return (true);
+          break;
+        case "F3":
+          if (e.KeyCode == Keys.F3) return (true);
+          break;
+        case "F4":
+          if (e.KeyCode == Keys.F4) return (true);
+          break;
+        case "F5":
+          if (e.KeyCode == Keys.F5) return (true);
+          break;
+        case "F6":
+          if (e.KeyCode == Keys.F6) return (true);
+          break;
+        case "F7":
+          if (e.KeyCode == Keys.F7) return (true);
+          break;
+        case "F8":
+          if (e.KeyCode == Keys.F8) return (true);
+          break;
+        case "F9":
+          if (e.KeyCode == Keys.F9) return (true);
+          break;
+        case "F10":
+          if (e.KeyCode == Keys.F10) return (true);
+          break;
+        case "F11":
+          if (e.KeyCode == Keys.F11) return (true);
+          break;
+        case "F12":
+          if (e.KeyCode == Keys.F12) return (true);
+          break;
+        case "A":
+          if (e.KeyCode == Keys.A) return (true);
+          break;
+        case "B":
+          if (e.KeyCode == Keys.B) return (true);
+          break;
+        case "C":
+          if (e.KeyCode == Keys.C) return (true);
+          break;
+        case "D":
+          if (e.KeyCode == Keys.D) return (true);
+          break;
+        case "E":
+          if (e.KeyCode == Keys.E) return (true);
+          break;
+        case "F":
+          if (e.KeyCode == Keys.F) return (true);
+          break;
+        case "G":
+          if (e.KeyCode == Keys.G) return (true);
+          break;
+        case "H":
+          if (e.KeyCode == Keys.H) return (true);
+          break;
+        case "I":
+          if (e.KeyCode == Keys.I) return (true);
+          break;
+        case "J":
+          if (e.KeyCode == Keys.J) return (true);
+          break;
+        case "K":
+          if (e.KeyCode == Keys.K) return (true);
+          break;
+        case "L":
+          if (e.KeyCode == Keys.L) return (true);
+          break;
+        case "M":
+          if (e.KeyCode == Keys.M) return (true);
+          break;
+        case "N":
+          if (e.KeyCode == Keys.N) return (true);
+          break;
+        case "O":
+          if (e.KeyCode == Keys.O) return (true);
+          break;
+        case "P":
+          if (e.KeyCode == Keys.P) return (true);
+          break;
+        case "Q":
+          if (e.KeyCode == Keys.Q) return (true);
+          break;
+        case "R":
+          if (e.KeyCode == Keys.R) return (true);
+          break;
+        case "S":
+          if (e.KeyCode == Keys.S) return (true);
+          break;
+        case "T":
+          if (e.KeyCode == Keys.T) return (true);
+          break;
+        case "U":
+          if (e.KeyCode == Keys.U) return (true);
+          break;
+        case "V":
+          if (e.KeyCode == Keys.V) return (true);
+          break;
+        case "W":
+          if (e.KeyCode == Keys.W) return (true);
+          break;
+        case "X":
+          if (e.KeyCode == Keys.X) return (true);
+          break;
+        case "Y":
+          if (e.KeyCode == Keys.Y) return (true);
+          break;
+        case "Z":
+          if (e.KeyCode == Keys.Z) return (true);
+          break;
+        case "1":
+          if (e.KeyCode == Keys.D1) return (true);
+          break;
+        case "2":
+          if (e.KeyCode == Keys.D2) return (true);
+          break;
+        case "3":
+          if (e.KeyCode == Keys.D3) return (true);
+          break;
+        case "4":
+          if (e.KeyCode == Keys.D4) return (true);
+          break;
+        case "5":
+          if (e.KeyCode == Keys.D5) return (true);
+          break;
+        case "6":
+          if (e.KeyCode == Keys.D6) return (true);
+          break;
+        case "7":
+          if (e.KeyCode == Keys.D7) return (true);
+          break;
+        case "8":
+          if (e.KeyCode == Keys.D9) return (true);
+          break;
+        case "0":
+          if (e.KeyCode == Keys.D0) return (true);
+          break;
+        default:
+          return (false);
+      }
+
+      return (false);
+      
+    }
+    
 
     private void Form1_FormClosed(object sender, FormClosedEventArgs e)
     {
@@ -154,11 +672,6 @@ namespace BossComing
 
       AppSettings.Instance.SaveOptions();
 
-      if (AppSettings.Instance.HK.Registered)
-      {
-        AppSettings.Instance.HK.Unregister();
-      }
-
     }
 
     /// <summary>
@@ -166,9 +679,15 @@ namespace BossComing
     /// </summary>
     private void ReplaceShowScreen()
     {
+      if (AppSettings.Instance.fMuteSystemSound == true)
+      {
+        Mute();
+      }
+      
       Form4 frm4 = new Form4();
       frm4.ShowDialog();
       frm4.Dispose();
+      
     }
 
     private void buttonExecute_Click(object sender, EventArgs e)
@@ -255,32 +774,7 @@ namespace BossComing
       Form3 frm3 = new Form3();
       frm3.ShowDialog();
       frm3.Dispose();
-
-      ArrayList KeyList = new ArrayList();
-
-      Keys key;
-      Enum.TryParse(AppSettings.Instance.KeyString, out key);
-      AppSettings.Instance.HK.KeyCode = key;
-
-      //AppSettings.Instance.HK.Windows = true;
-      if (AppSettings.Instance.KeyModCtrl == true)
-      {
-        AppSettings.Instance.HK.Control = true;
-        KeyList.Add("Ctrl");
-      }
-      if (AppSettings.Instance.KeyModAlt == true)
-      {
-        AppSettings.Instance.HK.Alt = true;
-        KeyList.Add("Alt");
-      }
-      if (AppSettings.Instance.KeyModShift == true)
-      {
-        AppSettings.Instance.HK.Shift = true;
-        KeyList.Add("Shift");
-      }
-
-      KeyList.Add(key);
-      toolStripStatusLabelKeyString.Text = String.Join(" + ", KeyList.ToArray());
+      DisplayCurrentShortCut();
 
     }
 
@@ -333,6 +827,7 @@ namespace BossComing
     {
       this.WindowState = FormWindowState.Minimized;
     }
+
   }
 
 }

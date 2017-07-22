@@ -31,7 +31,9 @@ AppendDefaultDirName=yes
 OutputDir=.\archives
 TouchTime=00:00
 ShowLanguageDialog=yes
-UsePreviousLanguage=no
+UsePreviousLanguage=noSignedUninstaller=yes
+SignTool=MySignTool
+
 ;-----------------------------------
 ;インストーラプログラム
 ;-----------------------------------

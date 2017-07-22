@@ -1,6 +1,6 @@
 ﻿//---------------------------------------------------------------------- 
 // "BossComing2" -- File encryption software.
-// Copyright (C) 2016  Mitsuhiro Hibara
+// Copyright (C) 2017  Mitsuhiro Hibara
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,8 +31,6 @@ namespace BossComing
       InitializeComponent();
 
       this.Opacity = 0;
-      timer1.Interval = AppSettings.Instance.FadeinSpeed;
-      timer1.Start();
 
       pictureBox1.Dock = DockStyle.Fill;
       pictureBox1.Image = AppSettings.Instance.BitmapMainGazo;
@@ -50,6 +48,7 @@ namespace BossComing
           pictureBox1.Image = img;
         }
       }
+
       this.FormBorderStyle = FormBorderStyle.None;
 
       //this.WindowState = FormWindowState.Maximized;
@@ -57,6 +56,20 @@ namespace BossComing
       this.Top = SystemInformation.VirtualScreen.Top;
       this.Width = SystemInformation.VirtualScreen.Width;
       this.Height = SystemInformation.VirtualScreen.Height;
+
+      // This is gradually displayed
+      for (int i = 0; i <= AppSettings.Instance.FadeinSpeed; i++)
+      {
+        if ( this.Opacity < 1)
+        {
+          // Change the transparency of the form.
+          this.Opacity += 0.01;
+          this.Refresh();
+          // Pause and redraw the form.
+          System.Threading.Thread.Sleep(AppSettings.Instance.FadeinSpeed/10);
+        }
+      }
+      
     }
 
     private void Form4_MouseClick(object sender, MouseEventArgs e)
@@ -71,7 +84,18 @@ namespace BossComing
 
     private void pictureBox1_Click(object sender, EventArgs e)
     {
-      this.Close();
+      // Grobal variables from Form1
+      if (Form1.fMouseModLeft == true || Form1.fMouseModMiddle == true || Form1.fMouseModRight == true)
+      {
+        Form1.fMouseModLeft = false;
+        Form1.fMouseModMiddle = false;
+        Form1.fMouseModRight = false;
+      }
+      else
+      {
+        this.Close();
+      } 
+
     }
 
     private void timer1_Tick(object sender, EventArgs e)
@@ -79,8 +103,13 @@ namespace BossComing
       if (this.Opacity < 1)
       {
         this.Opacity += FadeInValue;
+        this.Refresh();
       }
     }
 
+    private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+    {
+
+    }
   }
 }

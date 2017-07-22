@@ -1,9 +1,25 @@
-@echo. ======================================================================
+@echo. ======================================================================v
 @echo. Batch process file that create installer to package.
 @echo. 
 @echo. * Required "Inno Setup 5" later
 @echo. * Required "7Zip"
 @echo. ======================================================================
+
+@echo 
+@echo -----------------------------------
+@echo Rebuild BossComing2.exe
+@echo -----------------------------------
+
+
+msbuild.exe /p:Configuration="Release" /p:Platform="AnyCPU" /t:ReBuild /v:n ..\BossComing\BossComing.csproj
+
+
+@echo 
+@echo -----------------------------------
+@echo Delete old files
+@echo -----------------------------------
+
+del /Q Archives\
 
 @echo 
 @echo -----------------------------------
@@ -15,16 +31,17 @@ mkdir bin
 copy ..\BossComing\bin\Release\BossComing.exe bin\BossComing.exe
 mkdir bin\ja-JP
 copy ..\BossComing\bin\Release\ja-JP\BossComing.resources.dll bin\ja-JP\BossComing.resources.dll
-copy ..\readme.txt bin\readme.txt
 
 @echo 
 @echo -----------------------------------
-@echo Timestamp zero clear
+@echo Code signing
 @echo -----------------------------------
 
-..\tools\setTimeZero\setTimeZero\bin\Release\setTimeZero.exe bin\readme.txt
-..\tools\setTimeZero\setTimeZero\bin\Release\setTimeZero.exe bin\BossComing.exe
-..\tools\setTimeZero\setTimeZero\bin\Release\setTimeZero.exe bin\ja-JP\BossComing.resources.dll
+SET PATH="C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin";%PATH%
+SET PATH="C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin";%PATH%
+SET PATH="C:\Program Files\Windows Kits\8.0\bin\x86";%PATH%
+
+signtool.exe sign /v /a /n "Mitsuhiro Hibara" /tr http://rfc3161timestamp.globalsign.com/advanced /td sha256 bin\BossComing.exe
 
 @echo. 
 @echo. -----------------------------------
@@ -39,14 +56,7 @@ if "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
 
 echo %ERRORLEVEL%
 
-@rem Code signing
-if exist "code_signing\_password.txt" (
-
-for /f "tokens=*" %%i in (code_signing\_password.txt) do Set PASS=%%i 
-
-)
-
-"C:\Program Files\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe" sign /v /fd sha256 /f code_signing\OS201608304212.pfx /p %PASS% /t http://timestamp.globalsign.com/?signature=sha2 Archives\*.exe
+signtool.exe sign /v /a /n "Mitsuhiro Hibara" /tr http://rfc3161timestamp.globalsign.com/advanced /td sha256 Archives\bscm*.exe
 
 
 @echo. 
@@ -70,16 +80,6 @@ cd ..\
 
 ..\tools\GetHash\GetHash\bin\Release\GetHash.exe Archives\bscm%NUM%.exe
 ..\tools\GetHash\GetHash\bin\Release\GetHash.exe Archives\bscm%NUM%.zip
-
-@echo. 
-@echo. -----------------------------------
-@echo. Timestamp ( only time ) zero clear
-@echo. -----------------------------------
-
-..\tools\setTimeZero\setTimeZero\bin\Release\setTimeZero.exe /w Archives\*.exe
-..\tools\setTimeZero\setTimeZero\bin\Release\setTimeZero.exe /w Archives\*.zip
-..\tools\setTimeZero\setTimeZero\bin\Release\setTimeZero.exe /w Archives\*.md5
-..\tools\setTimeZero\setTimeZero\bin\Release\setTimeZero.exe /w Archives\*.sha1
 
 
 @echo. 

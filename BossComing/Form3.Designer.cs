@@ -30,6 +30,9 @@
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form3));
       this.groupBox1 = new System.Windows.Forms.GroupBox();
+      this.checkBoxMouseRight = new System.Windows.Forms.CheckBox();
+      this.checkBoxMouseMiddle = new System.Windows.Forms.CheckBox();
+      this.checkBoxMouseLeft = new System.Windows.Forms.CheckBox();
       this.checkBoxShift = new System.Windows.Forms.CheckBox();
       this.checkBoxAlt = new System.Windows.Forms.CheckBox();
       this.checkBoxCtrl = new System.Windows.Forms.CheckBox();
@@ -47,6 +50,7 @@
       this.buttonApply = new System.Windows.Forms.Button();
       this.checkBoxInTaskbar = new System.Windows.Forms.CheckBox();
       this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+      this.checkBoxMuteSystemSound = new System.Windows.Forms.CheckBox();
       this.groupBox1.SuspendLayout();
       this.groupBox2.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
@@ -56,6 +60,9 @@
       // 
       // groupBox1
       // 
+      this.groupBox1.Controls.Add(this.checkBoxMouseRight);
+      this.groupBox1.Controls.Add(this.checkBoxMouseMiddle);
+      this.groupBox1.Controls.Add(this.checkBoxMouseLeft);
       this.groupBox1.Controls.Add(this.checkBoxShift);
       this.groupBox1.Controls.Add(this.checkBoxAlt);
       this.groupBox1.Controls.Add(this.checkBoxCtrl);
@@ -63,6 +70,27 @@
       resources.ApplyResources(this.groupBox1, "groupBox1");
       this.groupBox1.Name = "groupBox1";
       this.groupBox1.TabStop = false;
+      // 
+      // checkBoxMouseRight
+      // 
+      resources.ApplyResources(this.checkBoxMouseRight, "checkBoxMouseRight");
+      this.checkBoxMouseRight.Name = "checkBoxMouseRight";
+      this.checkBoxMouseRight.UseVisualStyleBackColor = true;
+      this.checkBoxMouseRight.CheckedChanged += new System.EventHandler(this.ChangedValue);
+      // 
+      // checkBoxMouseMiddle
+      // 
+      resources.ApplyResources(this.checkBoxMouseMiddle, "checkBoxMouseMiddle");
+      this.checkBoxMouseMiddle.Name = "checkBoxMouseMiddle";
+      this.checkBoxMouseMiddle.UseVisualStyleBackColor = true;
+      this.checkBoxMouseMiddle.CheckedChanged += new System.EventHandler(this.ChangedValue);
+      // 
+      // checkBoxMouseLeft
+      // 
+      resources.ApplyResources(this.checkBoxMouseLeft, "checkBoxMouseLeft");
+      this.checkBoxMouseLeft.Name = "checkBoxMouseLeft";
+      this.checkBoxMouseLeft.UseVisualStyleBackColor = true;
+      this.checkBoxMouseLeft.CheckedChanged += new System.EventHandler(this.ChangedValue);
       // 
       // checkBoxShift
       // 
@@ -137,7 +165,12 @@
             resources.GetString("listBoxKeyString.Items44"),
             resources.GetString("listBoxKeyString.Items45"),
             resources.GetString("listBoxKeyString.Items46"),
-            resources.GetString("listBoxKeyString.Items47")});
+            resources.GetString("listBoxKeyString.Items47"),
+            resources.GetString("listBoxKeyString.Items48"),
+            resources.GetString("listBoxKeyString.Items49"),
+            resources.GetString("listBoxKeyString.Items50"),
+            resources.GetString("listBoxKeyString.Items51"),
+            resources.GetString("listBoxKeyString.Items52")});
       this.listBoxKeyString.Name = "listBoxKeyString";
       this.listBoxKeyString.SelectedIndexChanged += new System.EventHandler(this.ChangedValue);
       // 
@@ -162,7 +195,7 @@
       this.trackBar1.Name = "trackBar1";
       this.trackBar1.TickFrequency = 10;
       this.trackBar1.Value = 100;
-      this.trackBar1.ValueChanged += new System.EventHandler(this.ChangedValue);
+      this.trackBar1.ValueChanged += new System.EventHandler(this.trackBar1_ValueChanged);
       // 
       // groupBox3
       // 
@@ -228,10 +261,18 @@
       this.checkBoxInTaskbar.UseVisualStyleBackColor = true;
       this.checkBoxInTaskbar.CheckedChanged += new System.EventHandler(this.ChangedValue);
       // 
+      // checkBoxMuteSystemSound
+      // 
+      resources.ApplyResources(this.checkBoxMuteSystemSound, "checkBoxMuteSystemSound");
+      this.checkBoxMuteSystemSound.Name = "checkBoxMuteSystemSound";
+      this.checkBoxMuteSystemSound.UseVisualStyleBackColor = true;
+      this.checkBoxMuteSystemSound.CheckedChanged += new System.EventHandler(this.ChangedValue);
+      // 
       // Form3
       // 
       resources.ApplyResources(this, "$this");
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.Controls.Add(this.checkBoxMuteSystemSound);
       this.Controls.Add(this.checkBoxInTaskbar);
       this.Controls.Add(this.panel1);
       this.Controls.Add(this.groupBox3);
@@ -276,5 +317,9 @@
     private System.Windows.Forms.Button buttonCancel;
     private System.Windows.Forms.Button buttonApply;
     private System.Windows.Forms.OpenFileDialog openFileDialog1;
+    private System.Windows.Forms.CheckBox checkBoxMouseRight;
+    private System.Windows.Forms.CheckBox checkBoxMouseMiddle;
+    private System.Windows.Forms.CheckBox checkBoxMouseLeft;
+    private System.Windows.Forms.CheckBox checkBoxMuteSystemSound;
   }
 }

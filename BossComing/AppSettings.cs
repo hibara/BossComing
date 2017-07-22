@@ -1,6 +1,6 @@
 ﻿//---------------------------------------------------------------------- 
-// "BossComing2" -- File encryption software.
-// Copyright (C) 2016  Mitsuhiro Hibara
+// "BossComing2"
+// Copyright (C) 2017  Mitsuhiro Hibara
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -115,18 +115,47 @@ namespace BossComing
     // KeyCode
     #region
 
-    private Hotkey _HK;
-    public Hotkey HK
-    {
-      get { return this._HK; }
-      set { this._HK = value; }
-    }
     private string _KeyString;
     public string KeyString
     {
       get { return this._KeyString; }
-      set { this._KeyString = value; }
+      set
+      {
+        if (value == "Left click" || value == "左クリック")
+        {
+          this._KeyString = "LeftClick";
+        }
+        else if (value == "Middle click" || value == "中央クリック")
+        {
+          this._KeyString = "MiddleClick";
+        }
+        else if (value == "Right click" || value == "右クリック")
+        {
+          this._KeyString = "RightClick";
+        }
+        else if (value == "Wheel up" || value == "ホイールアップ")
+        {
+          this._KeyString = "WheelUp";
+        }
+        else if (value == "Wheel down" || value == "ホイールダウン")
+        {
+          this._KeyString = "WheelDown";
+        }
+        else if (value == "Left double click" || value == "左ダブルクリック")
+        {
+          this._KeyString = "LeftDoubleClick";
+        }
+        else if (value == "Right double click" || value == "右ダブルクリック")
+        {
+          this._KeyString = "RightDoubleClick";
+        }
+        else
+        {
+          this._KeyString = value;
+        }
+      }
     }
+
     private bool _KeyModAlt;
     public bool KeyModAlt
     {
@@ -146,6 +175,28 @@ namespace BossComing
       set { this._KeyModShift = value; }
     }
 
+    private bool _MouseModLeft;
+    public bool MouseModLeft
+    {
+      get { return this._MouseModLeft; }
+      set { this._MouseModLeft = value; }
+    }
+
+    private bool _MouseModMiddle;
+    public bool MouseModMiddle
+    {
+      get { return this._MouseModMiddle; }
+      set { this._MouseModMiddle = value; }
+    }
+
+    private bool _MouseModRight;
+    public bool MouseModRight
+    {
+      get { return this._MouseModRight; }
+      set { this._MouseModRight = value; }
+    }
+
+    //-----------------------------------
     // Not use from ver.1.1.0.0
     private int _keyCode;
     public int keyCode
@@ -195,6 +246,13 @@ namespace BossComing
     {
       get { return this._fInTaskTrayIcon; }
       set { this._fInTaskTrayIcon = value; }
+    }
+
+    private bool _fMuteSystemSound;
+    public bool fMuteSystemSound
+    {
+      get { return this._fMuteSystemSound; }
+      set { this._fMuteSystemSound = value; }
     }
 
     private bool _fInTaskBar;
@@ -274,6 +332,9 @@ namespace BossComing
         _KeyModAlt = bool.Parse((string)reg.GetValue("KeyModAlt", "false"));
         _KeyModCtrl = bool.Parse((string)reg.GetValue("KeyModCtrl", "true"));
         _KeyModShift = bool.Parse((string)reg.GetValue("KeyModShift", "false"));
+        _MouseModLeft = bool.Parse((string)reg.GetValue("MouseModLeft", "false"));
+        _MouseModMiddle = bool.Parse((string)reg.GetValue("MouseModMiddle", "false"));
+        _MouseModRight = bool.Parse((string)reg.GetValue("MouseModRight", "false"));
       }
       //----------------------------------------------------------------------
       // Option
@@ -282,6 +343,7 @@ namespace BossComing
         _FadeinSpeed = (int)reg.GetValue("FadeinSpeed", 100);
         _fGazoFile = bool.Parse((string)reg.GetValue("fGazoFile", "false"));
         _GazoFilePath = (string)reg.GetValue("GazoFilePath", "");
+        _fMuteSystemSound = bool.Parse((string)reg.GetValue("fMuteSystemSound", "false"));
         _fInTaskTrayIcon = bool.Parse((string)reg.GetValue("fInTaskTrayIcon", "false"));
         _fInTaskBar = bool.Parse((string)reg.GetValue("fInTaskBar", "false"));
         _InitDirPath = (string)reg.GetValue("InitDirPath", "");
@@ -308,7 +370,6 @@ namespace BossComing
 			// Window
 			using (RegistryKey reg = Registry.CurrentUser.CreateSubKey(RegistryPathWindowPos))
 			{
-				//-----------------------------------
 				// Windows Positions and size
 				reg.SetValue("WindowTop", _FormTop);
 				reg.SetValue("WindowLeft", _FormLeft);
@@ -317,15 +378,17 @@ namespace BossComing
 				reg.SetValue("FormStyle", _FormStyle);
 			}
 
+      //-----------------------------------
+      // Key code
       using (RegistryKey reg = Registry.CurrentUser.CreateSubKey(RegistryPathKeyCode))
       {
-        KeysConverter kc = new KeysConverter();
-        string _keyChar = kc.ConvertToString(AppSettings.Instance.HK.KeyCode);
-
         reg.SetValue("KeyString", _KeyString);
         reg.SetValue("KeyModAlt", _KeyModAlt);
         reg.SetValue("KeyModCtrl", _KeyModCtrl);
         reg.SetValue("KeyModShift", _KeyModShift);
+        reg.SetValue("MouseModLeft", _MouseModLeft);
+        reg.SetValue("MouseModMiddle", _MouseModMiddle);
+        reg.SetValue("MouseModRight", _MouseModRight);
       }
 
       //----------------------------------------------------------------------
@@ -335,6 +398,7 @@ namespace BossComing
         reg.SetValue("FadeinSpeed", _FadeinSpeed);
         reg.SetValue("fGazoFile", _fGazoFile);
         reg.SetValue("GazoFilePath", _GazoFilePath);
+        reg.SetValue("fMuteSystemSound", _fMuteSystemSound);
         reg.SetValue("fInTaskTrayIcon", _fInTaskTrayIcon);
         reg.SetValue("fInTaskBar", _fInTaskBar);
         reg.SetValue("InitDirPath", _InitDirPath);

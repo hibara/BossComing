@@ -117,34 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="LeftClick" xml:space="preserve">
-    <value>Left click</value>
+  <data name="LeftClick1" xml:space="preserve">
+    <value>左クリック</value>
   </data>
   <data name="LeftDoubleClick" xml:space="preserve">
-    <value>Left double click</value>
+    <value>左ダブルクリック</value>
   </data>
   <data name="MiddleClick" xml:space="preserve">
-    <value>Middle click</value>
+    <value>中央クリック</value>
   </data>
   <data name="MouseModLeft" xml:space="preserve">
-    <value>Left mouse button</value>
+    <value>左マウスボタン</value>
   </data>
   <data name="MouseModMiddle" xml:space="preserve">
-    <value>Middle mouse button</value>
+    <value>中央マウスボタン</value>
   </data>
   <data name="MouseModRight" xml:space="preserve">
-    <value>Right mouse button</value>
+    <value>右マウスボタン</value>
   </data>
   <data name="RightClick" xml:space="preserve">
-    <value>Right click</value>
+    <value>右クリック</value>
   </data>
   <data name="RightDoubleClick" xml:space="preserve">
-    <value>Right double click</value>
+    <value>右ダブルクリック</value>
   </data>
   <data name="WheelDown" xml:space="preserve">
-    <value>Wheel down</value>
+    <value>ホイールダウン</value>
   </data>
   <data name="WheelUp" xml:space="preserve">
-    <value>Wheel up</value>
+    <value>ホイールアップ</value>
   </data>
 </root>

@@ -1,6 +1,6 @@
 ﻿//---------------------------------------------------------------------- 
-// "BossComing2" -- File encryption software.
-// Copyright (C) 2016  Mitsuhiro Hibara
+// "BossComing2"
+// Copyright (C) 2017  Mitsuhiro Hibara
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

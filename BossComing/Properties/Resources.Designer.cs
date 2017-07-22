@@ -59,5 +59,95 @@ namespace BossComing.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Left click に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LeftClick {
+            get {
+                return ResourceManager.GetString("LeftClick", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Left double click に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LeftDoubleClick {
+            get {
+                return ResourceManager.GetString("LeftDoubleClick", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Middle click に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MiddleClick {
+            get {
+                return ResourceManager.GetString("MiddleClick", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Left mouse button に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MouseModLeft {
+            get {
+                return ResourceManager.GetString("MouseModLeft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Middle mouse button に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MouseModMiddle {
+            get {
+                return ResourceManager.GetString("MouseModMiddle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Right mouse button に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MouseModRight {
+            get {
+                return ResourceManager.GetString("MouseModRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Right click に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string RightClick {
+            get {
+                return ResourceManager.GetString("RightClick", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Right double click に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string RightDoubleClick {
+            get {
+                return ResourceManager.GetString("RightDoubleClick", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Wheel down に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string WheelDown {
+            get {
+                return ResourceManager.GetString("WheelDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Wheel up に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string WheelUp {
+            get {
+                return ResourceManager.GetString("WheelUp", resourceCulture);
+            }
+        }
     }
 }
